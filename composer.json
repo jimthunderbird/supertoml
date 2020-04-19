@@ -1,0 +1,23 @@
+{
+    "name": "jimthunderbird/supertoml",
+    "description": "A Simple TOML Parser In PHP",
+    "keywords": ["TOML", "parser"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Jim Huang",
+            "email": "jim.javathunderbird@gmail.com",
+            "role": "A PHP Guy"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "SuperTOML\\": "src/SuperTOML"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
