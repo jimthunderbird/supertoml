@@ -7,12 +7,12 @@ class TOMLParser
     private array $lines = [];
     private array $dataMap = [];
 
-    public function parseFile(string $tomlFile) {
+    public function parseFile(string $tomlFile) : array {
         $content = \trim(\file_get_contents($tomlFile)); //get the file content
         return $this->parseTOMLStr($content);
     }
 
-    public function parseTOMLStr(string $content) {
+    public function parseTOMLStr(string $content) : array {
         $content = $this->removeComments($content);
 
         $content = $this->convertMultilineJSON($content);
@@ -51,7 +51,7 @@ class TOMLParser
         return $this->dataMap;
     }
 
-    private function assignArrayByPath(&$arr, $path, $value, $separator='.') {
+    private function assignArrayByPath(array &$arr, string $path, $value, string $separator='.') : void {
         $keys = explode($separator, $path);
 
         foreach ($keys as $key) {
@@ -61,7 +61,7 @@ class TOMLParser
         $arr = $value;
     }
 
-    private function removeComments($content) {
+    private function removeComments(string $content) : string {
         //remove all comments
         $lines = \explode("\n", $content);
         $lines = \array_map(function($match) {
@@ -77,7 +77,7 @@ class TOMLParser
         return $content;
     }
 
-    private function convertMultilineJSON($content) {
+    private function convertMultilineJSON(string $content) : string {
         //convert multi line json to single line json
         \preg_match_all("/\{(?=.*\n)[^}]+\}\.*(\n}){0,}/", $content, $matches);
 
@@ -88,7 +88,7 @@ class TOMLParser
         return $content;
     }
 
-    private function convertArray($content) {
+    private function convertArray(string $content) : string {
         //convert multi line array into single line array
         \preg_match_all("/\[(?=.*\n)[^]]+\]\.*(\n]){0,}/", $content, $matches);
 
