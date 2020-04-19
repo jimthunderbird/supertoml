@@ -15,6 +15,7 @@ $this->assertSame($data['a']['b']['c']['key'], 1);
 ```
 
 ### Multi-line JSON in TOML
+```php
 $toml = <<<TOML
 [a.b.c]
 json = {
@@ -26,3 +27,4 @@ $parser = new TOMLParser();
 $data = $parser->parseTOMLStr($toml);
 
 $this->assertSame($data['a']['b']['c']['json']['key1'], 1);
+```
