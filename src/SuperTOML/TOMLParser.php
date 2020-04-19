@@ -13,7 +13,7 @@ class TOMLParser
     }
 
     public function parseTOMLStr(string $content) {
-        $content = $this->removeCommetns($content);
+        $content = $this->removeComments($content);
 
         $content = $this->convertMultilineJSON($content);
 
@@ -61,7 +61,7 @@ class TOMLParser
         $arr = $value;
     }
 
-    private function removeCommetns($content) {
+    private function removeComments($content) {
         //remove all comments
         $lines = \explode("\n", $content);
         $lines = \array_map(function($match) {
