@@ -38,6 +38,8 @@ class TOMLParser
         $this->lines = \explode("\n", $content);
 
         //first pass, handle the non-section keys (any keys that does not belong to a specific section)
+        $nonSectionDataMap = [];
+
         $section = "___default_section___"; //we will have a default section first
         foreach($this->lines as $line) {
             $line = \trim($line);
@@ -54,29 +56,31 @@ class TOMLParser
                     return '"'.\trim(str_replace('=','',$matches[0])).'":';
                 }, $line);
                 if (strlen($section) > 0) {
-                    $this->dataMap[$section][] = $line;
+                    $nonSectionDataMap[$section][] = $line;
                 }
             }
         }
 
-        foreach($this->dataMap as $section => $lines) {
-            $value = \json_decode('{'. implode(",", $lines). '}', true);
-            $this->assignArrayByPath($this->dataMap, $section, $value, ".");
+        foreach($nonSectionDataMap as $section => $lines) {
+            if (\is_array($lines)) {
+                $value = \json_decode('{'. implode(",", $lines). '}', true);
+                $this->assignArrayByPath($nonSectionDataMap, $section, $value, ".");
+            }
         }
 
         $numOfNonSectionKeys = 0;
-        if (isset($this->dataMap[$section])) {
-            $numOfNonSectionKeys = \count($this->dataMap[$section]);
+        if (isset($nonSectionDataMap[$section])) {
+            $numOfNonSectionKeys = \count($nonSectionDataMap[$section]);
         }
         if ($numOfNonSectionKeys > 0) {
             //this means we have default section keys
             //now assign the default section values back to the data map
-            foreach($this->dataMap[$section] as $key => $value) {
-                $this->dataMap[$key] = $value;
+            foreach($nonSectionDataMap[$section] as $key => $value) {
+                $nonSectionDataMap[$key] = $value;
             }
 
             //now remove the default section
-            unset($this->dataMap[$section]);
+            unset($nonSectionDataMap[$section]);
 
             //also, remove all the processed lines so far
             for($i = 0; $i < $numOfNonSectionKeys; $i ++) {
@@ -84,11 +88,8 @@ class TOMLParser
             }
         }
 
-        if (count($this->lines) === 0) { //no more lines to process, just return
-            return $this;
-        }
-
         //second pass, handle the section keys
+        $sectionDataMap = [];
         $section = "";
         foreach($this->lines as $line) {
             $line = \trim($line);
@@ -97,7 +98,7 @@ class TOMLParser
                 && $line[0] ==='['
                 && $line[$length - 1] === ']') { //this is a section
                 $section = \trim(substr($line, 1, $length - 2));
-                $this->dataMap[$section] = [];
+                $sectionDataMap[$section] = [];
             } else if (\strlen($line) > 0 && $line[0] !== "[") { //this is not a section
                 $line = \str_replace("'",'"', $line);
                 //try to match a 'key=' pattern and change it to '"key"='
@@ -106,21 +107,24 @@ class TOMLParser
                     return '"'.\trim(str_replace('=','',$matches[0])).'":';
                 }, $line);
                 if (strlen($section) > 0) {
-                    $this->dataMap[$section][] = $line;
+                    $sectionDataMap[$section][] = $line;
                 }
             }
         }
 
-        foreach($this->dataMap as $section => $lines) {
+        foreach($sectionDataMap as $section => $lines) {
             if (\is_array($lines)) {
                 $value = \json_decode('{'. implode(",", $lines). '}', true);
-                $this->assignArrayByPath($this->dataMap, $section, $value, ".");
+                $this->assignArrayByPath($sectionDataMap, $section, $value, ".");
             }
 
             if (\strpos($section, ".") !== FALSE) {
-                unset($this->dataMap[$section]);
+                unset($sectionDataMap[$section]);
             }
         }
+
+        //now we will just merge $nonSectionDataMap and $sectionDataMap
+        $this->dataMap = \array_merge_recursive($nonSectionDataMap, $sectionDataMap);
 
         return $this;
     }
