@@ -97,6 +97,19 @@ TOML;
         $data = $parser->parseTOMLStr($toml)->toArray();
         $this->assertSame($data['section']['keys'][3], 'value4');
         $this->assertSame($data['section']['keys'][4], 'value5');
-
     }
+
+    public function testInlineTable() {
+        $toml = <<<TOML
+[area]
+points = [ { x = 1, y = 2, z = 3 },
+           { x = 7, y = 8, z = 9 },
+           { x = 2, y = 4, z = 8 } ]
+TOML;
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml)->toArray();
+        $this->assertSame($data['area']['points'][0]['x'], 1);
+        $this->assertSame($data['area']['points'][1]['y'], 8);
+    }
+
 }
