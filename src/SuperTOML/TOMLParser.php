@@ -8,6 +8,8 @@ class TOMLParser
     private $dataMap = [];
     private static $filters = [];
 
+    private $rawContent;
+
     public function __construct(array $filters = [
         'remove_comments',
         'convert_multiline_json_to_singleline_json',
@@ -20,13 +22,15 @@ class TOMLParser
         }
     }
 
-    public function parseFile(string $tomlFile) : array {
-        $content = \trim(\file_get_contents($tomlFile)); //get the file content
-        return $this->parseTOMLStr($content);
+    public function parseFile(string $tomlFile) {
+        \trim(\file_get_contents($tomlFile)); //get the file content
+        return $this;
     }
 
-    public function parseTOMLStr(string $content) : array {
+    public function parseTOMLStr(string $content) {
         $content = $this->applyFiltersToContent($content);
+
+        $this->rawContent = $content;
 
         $this->lines = \explode("\n", $content);
         foreach($this->lines as $line) {
@@ -57,7 +61,19 @@ class TOMLParser
             }
         }
 
+        return $this;
+    }
+
+    public function toArray() : array {
         return $this->dataMap;
+    }
+
+    public function toJSON() : string {
+        return \json_encode($this->dataMap);
+    }
+
+    public function getRawContent() : string {
+        return $this->rawContent;
     }
 
     private function assignArrayByPath(array &$arr, string $path, $value, string $separator='.') : void {

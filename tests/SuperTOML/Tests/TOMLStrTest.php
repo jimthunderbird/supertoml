@@ -12,7 +12,7 @@ class TOMLStrTest extends TestCase
 key = 1
 TOML;
         $parser = new TOMLParser();
-        $data = $parser->parseTOMLStr($toml);
+        $data = $parser->parseTOMLStr($toml)->toArray();
 
         $this->assertSame($data['a']['b']['c']['key'], 1);
     }
@@ -26,10 +26,9 @@ json = {
 }
 TOML;
         $parser = new TOMLParser();
-        $data = $parser->parseTOMLStr($toml);
+        $data = $parser->parseTOMLStr($toml)->toArray();
 
         $this->assertSame($data['a']['b']['c']['json']['key1'], 1);
-
     }
 
     public function testCommentStripping() {
@@ -40,6 +39,6 @@ TOML;
 TOML;
 
         $parser = new TOMLParser();
-        $data = $parser->parseTOMLStr($toml);
+        $this->assertSame($parser->parseTOMLStr($toml)->getRawContent(), "");
     }
 }

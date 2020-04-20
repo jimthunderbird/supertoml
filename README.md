@@ -9,7 +9,7 @@ $toml = <<<TOML
 key = 1
 TOML;
 $parser = new SuperTOML\TOMLParser();
-$data = $parser->parseTOMLStr($toml);
+$data = $parser->parseTOMLStr($toml)->toArray();
 
 $this->assertSame($data['a']['b']['c']['key'], 1);
 ```
@@ -24,7 +24,7 @@ json = {
 }
 TOML;
 $parser = new TOMLParser();
-$data = $parser->parseTOMLStr($toml);
+$data = $parser->parseTOMLStr($toml)->toArray();
 
 $this->assertSame($data['a']['b']['c']['json']['key1'], 1);
 ```
