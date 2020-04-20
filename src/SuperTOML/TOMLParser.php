@@ -36,6 +36,59 @@ class TOMLParser
         $this->rawContent = $content;
 
         $this->lines = \explode("\n", $content);
+
+        //first pass, handle the non-section keys (any keys that does not belong to a specific section)
+        $section = "___default_section"; //we will have a default section first
+        foreach($this->lines as $line) {
+            $line = \trim($line);
+            $length = \strlen($line);
+            if (\strlen($line) > 2 //we need to make sure there is at least one character in between the []
+                && $line[0] ==='['
+                && $line[$length - 1] === ']') { //this is a section
+                break;
+            } else if (\strlen($line) > 0 && $line[0] !== "[") { //this is not a section
+                $line = \str_replace("'",'"', $line);
+                //try to match a 'key=' pattern and change it to '"key"='
+                //TOML key allows this pattern A-Za-z0-9_-
+                $line = \preg_replace_callback("|[a-zA-Z0-9_-]+[^s]=|", function($matches) {
+                    return '"'.\trim(str_replace('=','',$matches[0])).'":';
+                }, $line);
+                if (strlen($section) > 0) {
+                    $this->dataMap[$section][] = $line;
+                }
+            }
+        } 
+
+        foreach($this->dataMap as $section => $lines) {
+            $value = \json_decode('{'. implode(",", $lines). '}', true);
+            $this->assignArrayByPath($this->dataMap, $section, $value, ".");
+        }
+
+        $numOfNonSectionKeys = 0;
+        if (isset($this->dataMap[$section])) {
+            $numOfNonSectionKeys = \count($this->dataMap[$section]);
+        }
+        if ($numOfNonSectionKeys > 0) {
+            //this means we have default section keys
+            //now assign the default section values back to the data map
+            foreach($this->dataMap[$section] as $key => $value) {
+                $this->dataMap[$key] = $value;
+            }
+
+            //now remove the default section
+            unset($this->dataMap[$section]);
+
+            //also, remove all the processed lines so far
+            for($i = 0; $i < $numOfNonSectionKeys; $i ++) {
+                array_shift($this->lines);
+            } 
+        }
+
+        if (count($this->lines) === 0) { //no more lines to process, just return
+            return $this;
+        }
+
+        //second pass, handle the section keys
         $section = "";
         foreach($this->lines as $line) {
             $line = \trim($line);
@@ -59,8 +112,10 @@ class TOMLParser
         }
 
         foreach($this->dataMap as $section => $lines) {
-            $value = \json_decode('{'. implode(",", $lines). '}', true);
-            $this->assignArrayByPath($this->dataMap, $section, $value, ".");
+            if (\is_array($lines)) {
+                $value = \json_decode('{'. implode(",", $lines). '}', true);
+                $this->assignArrayByPath($this->dataMap, $section, $value, ".");
+            }
 
             if (\strpos($section, ".") !== FALSE) {
                 unset($this->dataMap[$section]);

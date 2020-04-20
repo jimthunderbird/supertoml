@@ -18,7 +18,7 @@ TOML;
     }
 
     public function testMultilineJSON() {
-    $toml = <<<TOML
+        $toml = <<<TOML
 [a.b.c]
 json = {
     key1 = 1,
@@ -124,5 +124,26 @@ TOML;
             ->parseTOMLStr($toml)
             ->getRawContent();
         $this->assertTrue(strpos($content, "#") !== FALSE);
+    }
+
+    public function testNoSectionKeys() {
+        $toml = <<<TOML
+title = 'simpletitle'
+
+a = 1
+b = 2
+
+[c]
+d = 3
+e = { f = 4 }
+
+TOML;
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml)->toArray();
+
+        $this->assertSame($data['title'], 'simpletitle');
+        $this->assertSame($data['a'], 1);
+        $this->assertSame($data['b'], 2);
+        $this->assertSame($data['c']['e']['f'], 4);
     }
 }
