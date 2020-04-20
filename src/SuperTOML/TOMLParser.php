@@ -3,9 +3,9 @@ namespace SuperTOML;
 
 class TOMLParser
 {
-    private string $tomlFile;
-    private array $lines = [];
-    private array $dataMap = [];
+    private $tomlFile;
+    private $lines = [];
+    private $dataMap = [];
 
     public function parseFile(string $tomlFile) : array {
         $content = \trim(\file_get_contents($tomlFile)); //get the file content
