@@ -6,20 +6,22 @@ class TOMLParser
     private $tomlFile;
     private $lines = [];
     private $dataMap = [];
-    private static $filters = [];
+    private $filters = [];
+    private static $requiredFilters = [];
 
     private $rawContent;
 
-    public function __construct(array $filters = [
+    public function __construct(array $filterNames = [
         'remove_comments',
         'convert_multiline_json_to_singleline_json',
         'convert_multiline_array_to_singleline_array',
         'remove_trailing_commas',
     ]) {
-        foreach($filters as $filterName) {
-            if (!isset(static::$filters[$filterName])) {
-                static::$filters[$filterName] = require __DIR__."/filters/$filterName.php";
+        foreach($filterNames as $filterName) {
+            if (!isset(static::$requiredFilters[$filterName])) {
+                static::$requiredFilters[$filterName] = require __DIR__."/filters/$filterName.php";
             }
+            $this->filters[$filterName] = static::$requiredFilters[$filterName];
         }
     }
 
@@ -34,6 +36,7 @@ class TOMLParser
         $this->rawContent = $content;
 
         $this->lines = \explode("\n", $content);
+        $section = "";
         foreach($this->lines as $line) {
             $line = \trim($line);
             $length = \strlen($line);
@@ -49,7 +52,9 @@ class TOMLParser
                 $line = \preg_replace_callback("|[a-zA-Z0-9_-]+[^s]=|", function($matches) {
                     return '"'.\trim(str_replace('=','',$matches[0])).'":';
                 }, $line);
-                $this->dataMap[$section][] = $line;
+                if (strlen($section) > 0) {
+                    $this->dataMap[$section][] = $line;
+                }
             }
         }
 
@@ -62,6 +67,16 @@ class TOMLParser
             }
         }
 
+        return $this;
+    }
+
+    public function addFilter(string $filterName, Closure $filter) {
+        $this->filters[$filterName] = $filter;
+        return $this;
+    }
+
+    public function removeFilter(string $filterName) {
+        unset($this->filters[$filterName]);
         return $this;
     }
 
@@ -88,7 +103,7 @@ class TOMLParser
     }
 
     private function applyFiltersToContent(string $content) : string {
-        foreach(static::$filters as $filter) {
+        foreach($this->filters as $filter) {
             $content = $filter($content);
         }
         return $content;

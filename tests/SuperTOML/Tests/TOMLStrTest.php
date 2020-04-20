@@ -113,4 +113,16 @@ TOML;
         $this->assertSame($data['area']['points'][2]['y'], 4);
     }
 
+    public function testFilterAddAndRemove() {
+        $toml = <<<TOML
+#comment
+[section1]
+TOML;
+        $parser = new TOMLParser();
+        $content = $parser
+            ->removeFilter("remove_comments")
+            ->parseTOMLStr($toml)
+            ->getRawContent();
+        $this->assertTrue(strpos($content, "#") !== FALSE);
+    }
 }
