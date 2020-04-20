@@ -83,5 +83,20 @@ TOML;
         $this->assertSame($data['section']['keys'][1], 'value2');
         $this->assertSame($data['section']['keys'][2], 'value3');
 
+        $toml = <<<TOML
+[section]
+keys = [
+    'value1',
+    'value2', # this is value2
+    'value3','value4',
+    'value5',
+]
+TOML;
+
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml)->toArray();
+        $this->assertSame($data['section']['keys'][3], 'value4');
+        $this->assertSame($data['section']['keys'][4], 'value5');
+
     }
 }
