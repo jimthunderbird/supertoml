@@ -38,7 +38,7 @@ class TOMLParser
         $this->lines = \explode("\n", $content);
 
         //first pass, handle the non-section keys (any keys that does not belong to a specific section)
-        $section = "___default_section"; //we will have a default section first
+        $section = "___default_section___"; //we will have a default section first
         foreach($this->lines as $line) {
             $line = \trim($line);
             $length = \strlen($line);
@@ -57,7 +57,7 @@ class TOMLParser
                     $this->dataMap[$section][] = $line;
                 }
             }
-        } 
+        }
 
         foreach($this->dataMap as $section => $lines) {
             $value = \json_decode('{'. implode(",", $lines). '}', true);
@@ -81,7 +81,7 @@ class TOMLParser
             //also, remove all the processed lines so far
             for($i = 0; $i < $numOfNonSectionKeys; $i ++) {
                 array_shift($this->lines);
-            } 
+            }
         }
 
         if (count($this->lines) === 0) { //no more lines to process, just return
