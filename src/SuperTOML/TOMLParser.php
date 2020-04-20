@@ -84,7 +84,7 @@ class TOMLParser
 
             //also, remove all the processed lines so far
             for($i = 0; $i < $numOfNonSectionKeys; $i ++) {
-                array_shift($this->lines);
+                \array_shift($this->lines);
             }
         }
 
@@ -152,7 +152,7 @@ class TOMLParser
     }
 
     private function assignArrayByPath(array &$arr, string $path, $value, string $separator='.') : void {
-        $keys = explode($separator, $path);
+        $keys = \explode($separator, $path);
 
         foreach ($keys as $key) {
             $arr = &$arr[$key];
