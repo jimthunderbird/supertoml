@@ -14,6 +14,7 @@ class TOMLParser
         'remove_comments',
         'convert_multiline_json_to_singleline_json',
         'convert_multiline_array_to_singleline_array',
+        'remove_trailing_commas',
     ]) {
         foreach($filters as $filterName) {
             if (!isset(static::$filters[$filterName])) {
