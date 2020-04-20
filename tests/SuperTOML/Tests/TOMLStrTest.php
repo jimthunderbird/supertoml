@@ -110,6 +110,7 @@ TOML;
         $data = $parser->parseTOMLStr($toml)->toArray();
         $this->assertSame($data['area']['points'][0]['x'], 1);
         $this->assertSame($data['area']['points'][1]['y'], 8);
+        $this->assertSame($data['area']['points'][2]['y'], 4);
     }
 
 }
