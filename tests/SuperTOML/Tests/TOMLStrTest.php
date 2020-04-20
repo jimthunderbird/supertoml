@@ -73,7 +73,7 @@ TOML;
 [section]
 keys = [
     'value1',
-    'value2',
+    'value2', # this is value2
     'value3',
 ]
 TOML;
