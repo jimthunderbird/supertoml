@@ -31,4 +31,15 @@ TOML;
         $this->assertSame($data['a']['b']['c']['json']['key1'], 1);
 
     }
+
+    public function testCommentStripping() {
+        $toml = <<<TOML
+# comment 1
+# comment 2
+# comment 3
+TOML;
+
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml);
+    }
 }

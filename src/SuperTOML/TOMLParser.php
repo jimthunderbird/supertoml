@@ -6,6 +6,19 @@ class TOMLParser
     private $tomlFile;
     private $lines = [];
     private $dataMap = [];
+    private static $filters = [];
+
+    public function __construct(array $filters = [
+        'remove_comments',
+        'convert_multiline_json_to_singleline_json',
+        'convert_multiline_array_to_singleline_array',
+    ]) {
+        foreach($filters as $filterName) {
+            if (!isset(static::$filters[$filterName])) {
+                static::$filters[$filterName] = require __DIR__."/filters/$filterName.php";
+            }
+        }
+    }
 
     public function parseFile(string $tomlFile) : array {
         $content = \trim(\file_get_contents($tomlFile)); //get the file content
@@ -13,11 +26,7 @@ class TOMLParser
     }
 
     public function parseTOMLStr(string $content) : array {
-        $content = $this->removeComments($content);
-
-        $content = $this->convertMultilineJSON($content);
-
-        $content = $this->convertArray($content);
+        $content = $this->applyFiltersToContent($content);
 
         $this->lines = \explode("\n", $content);
         foreach($this->lines as $line) {
@@ -61,41 +70,10 @@ class TOMLParser
         $arr = $value;
     }
 
-    private function removeComments(string $content) : string {
-        //remove all comments
-        $lines = \explode("\n", $content);
-        $lines = \array_map(function($match) {
-            return \preg_replace("/\/\*[\s\S]*?\*\/|([^:]|^)\#.*|([^:]|^)\/\/.*/", "", $match);
-        }, $lines);
-
-        $lines = \array_filter($lines, function($line) {
-            return \trim($line) !== "";
-        });
-
-        $content = \implode("\n",$lines);
-
-        return $content;
-    }
-
-    private function convertMultilineJSON(string $content) : string {
-        //convert multi line json to single line json
-        \preg_match_all("/\{(?=.*\n)[^}]+\}\.*(\n}){0,}/", $content, $matches);
-
-        foreach($matches[0] as $match) {
-            $content = \str_replace($match, implode(" ", explode("\n", $match)), $content);
+    private function applyFiltersToContent(string $content) : string {
+        foreach(static::$filters as $filter) {
+            $content = $filter($content);
         }
-
-        return $content;
-    }
-
-    private function convertArray(string $content) : string {
-        //convert multi line array into single line array
-        \preg_match_all("/\[(?=.*\n)[^]]+\]\.*(\n]){0,}/", $content, $matches);
-
-        foreach($matches[0] as $match) {
-            $content = \str_replace($match, implode(" ", \explode("\n", $match)), $content);
-        }
-
         return $content;
     }
 }
