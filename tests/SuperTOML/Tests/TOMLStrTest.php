@@ -161,5 +161,6 @@ TOML;
         $this->assertSame($data['abc']['links'][1]['name'], 'name2');
         $this->assertSame($data['abc']['links'][2]['name'], 'name3');
         $this->assertSame($data['abc']['links'][0]['owner'], 'abc@xyz.com');
+        $this->assertSame($data['abc']['links'][0]['name'], 'a = name1');
     }
 }
