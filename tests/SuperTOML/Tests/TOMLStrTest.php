@@ -151,7 +151,7 @@ TOML;
         $toml = <<<TOML
 [abc]
 links = [
-    { link = '/mywebsite?section=123', name = "a = name1" },
+    { link = '/mywebsite?section=123', name = "a = name1", owner = 'abc@xyz.com' },
     { link = "/mywebsite?section=456", name = 'name2' },
     { link = "/mywebsite?section=789", name = "name3" },
 ]
@@ -160,5 +160,6 @@ TOML;
         $data = $parser->parseTOMLStr($toml)->toArray();
         $this->assertSame($data['abc']['links'][1]['name'], 'name2');
         $this->assertSame($data['abc']['links'][2]['name'], 'name3');
+        $this->assertSame($data['abc']['links'][0]['owner'], 'abc@xyz.com');
     }
 }
