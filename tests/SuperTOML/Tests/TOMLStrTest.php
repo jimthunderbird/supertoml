@@ -151,7 +151,7 @@ TOML;
         $toml = <<<TOML
 [abc]
 links = [
-    { link = '/mywebsite?section=123', name = "name1" },
+    { link = '/mywebsite?section=123', name = "a = name1" },
     { link = "/mywebsite?section=456", name = 'name2' },
     { link = "/mywebsite?section=789", name = "name3" },
 ]
