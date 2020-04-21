@@ -16,6 +16,5 @@ return function($content) {
         $content = \str_replace($match, \str_replace("=","__equal__", $match), $content);
     }
 
-
     return $content;
 };
