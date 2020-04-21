@@ -13,6 +13,7 @@ class TOMLParser
 
     public function __construct(array $filterNames = [
         'remove_comments',
+        'encode_equal_signs_in_value',
         'convert_multiline_json_to_singleline_json',
         'convert_multiline_array_to_singleline_array',
         'remove_trailing_commas',
@@ -31,6 +32,9 @@ class TOMLParser
     }
 
     public function parseTOMLStr(string $content) {
+        //TOML key allows this pattern A-Za-z0-9_-
+        $regexTOMLKey = "|[a-zA-Z0-9_-]+[^s]=|";
+
         $content = $this->applyFiltersToContent($content);
 
         $this->rawContent = $content;
@@ -51,10 +55,7 @@ class TOMLParser
             } else if (\strlen($line) > 0 && $line[0] !== "[") { //this is not a section
                 $line = \str_replace("'",'"', $line);
                 //try to match a 'key=' pattern and change it to '"key"='
-                //TOML key allows this pattern A-Za-z0-9_-
-                $line = \preg_replace_callback("|[a-zA-Z0-9_-]+[^s]=|", function($matches) {
-                    return '"'.\trim(str_replace('=','',$matches[0])).'":';
-                }, $line);
+                $line = \preg_replace_callback($regexTOMLKey, $this->getTOMLKeyMatchHandler(), $line);
                 if (strlen($section) > 0) {
                     $nonSectionDataMap[$section][] = $line;
                 }
@@ -102,10 +103,7 @@ class TOMLParser
             } else if (\strlen($line) > 0 && $line[0] !== "[") { //this is not a section
                 $line = \str_replace("'",'"', $line);
                 //try to match a 'key=' pattern and change it to '"key"='
-                //TOML key allows this pattern A-Za-z0-9_-
-                $line = \preg_replace_callback("|[a-zA-Z0-9_-]+[^s]=|", function($matches) {
-                    return '"'.\trim(str_replace('=','',$matches[0])).'":';
-                }, $line);
+                $line = \preg_replace_callback($regexTOMLKey, $this->getTOMLKeyMatchHandler(), $line);
                 if (strlen($section) > 0) {
                     $sectionDataMap[$section][] = $line;
                 }
@@ -125,6 +123,12 @@ class TOMLParser
 
         //now we will just merge $nonSectionDataMap and $sectionDataMap
         $this->dataMap = \array_merge_recursive($nonSectionDataMap, $sectionDataMap);
+
+        //we need to decode the special characters like = sign
+        $this->dataMap = \json_decode(
+            str_replace("__equal__","=", \json_encode($this->dataMap)),
+            true
+        );
 
         return $this;
     }
@@ -149,6 +153,12 @@ class TOMLParser
 
     public function getRawContent() : string {
         return $this->rawContent;
+    }
+
+    private function getTOMLKeyMatchHandler() {
+        return function($matches) {
+            return '"'.\trim(str_replace('=','',$matches[0])).'":';
+        };
     }
 
     private function assignArrayByPath(array &$arr, string $path, $value, string $separator='.') : void {
