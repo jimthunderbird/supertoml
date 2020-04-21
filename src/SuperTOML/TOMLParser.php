@@ -126,7 +126,7 @@ class TOMLParser
 
         //we need to decode the special characters like = sign
         $this->dataMap = \json_decode(
-            str_replace("__equal__","=", \json_encode($this->dataMap)),
+            str_replace(Symbol::EQUAL_SIGN['replacement'],Symbol::EQUAL_SIGN['value'], \json_encode($this->dataMap)),
             true
         );
 
