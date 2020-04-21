@@ -9,7 +9,7 @@ class TOMLParser
     private $filters = [];
     private static $requiredFilters = [];
 
-    private $rawContent;
+    private $rawContent = "";
 
     public function __construct(array $filterNames = [
         'remove_comments',
@@ -27,7 +27,7 @@ class TOMLParser
     }
 
     public function parseFile(string $tomlFile) {
-        \trim(\file_get_contents($tomlFile)); //get the file content
+        $this->parseTOMLStr(\trim(\file_get_contents($tomlFile)));
         return $this;
     }
 
