@@ -34,7 +34,7 @@ class TOMLParser
     public function mergeTOMLFiles(array $tomlFiles) {
         $result = [];
         foreach($tomlFiles as $tomlFile) {
-            $result = \array_merge_recursive($result, $this->parseTOMLFile($tomlFile)->toArray());
+            $result = \array_replace_recursive($result, $this->parseTOMLFile($tomlFile)->toArray());
         }
         $this->dataMap = $result;
         return $this;
@@ -131,7 +131,7 @@ class TOMLParser
         }
 
         //now we will just merge $nonSectionDataMap and $sectionDataMap
-        $this->dataMap = \array_merge_recursive($nonSectionDataMap, $sectionDataMap);
+        $this->dataMap = \array_replace_recursive($nonSectionDataMap, $sectionDataMap);
 
         //we need to decode the special characters like = sign
         $this->dataMap = \json_decode(
