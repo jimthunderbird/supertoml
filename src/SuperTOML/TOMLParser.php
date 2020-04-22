@@ -26,9 +26,17 @@ class TOMLParser
         }
     }
 
-    public function parseFile(string $tomlFile) {
+    public function parseTOMLFile(string $tomlFile) {
         $this->parseTOMLStr(\trim(\file_get_contents($tomlFile)));
         return $this;
+    }
+
+    public function mergeTOMLFiles(array $tomlFiles) {
+        $result = [];
+        foreach($tomlFiles as $tomlFile) {
+            $result = \array_merge_recursive($result, $this->parseTOMLFile($tomlFile));
+        }
+        return $result;
     }
 
     public function parseTOMLStr(string $content) {
