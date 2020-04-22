@@ -36,7 +36,8 @@ class TOMLParser
         foreach($tomlFiles as $tomlFile) {
             $result = \array_merge_recursive($result, $this->parseTOMLFile($tomlFile)->toArray());
         }
-        return $result;
+        $this->dataMap = $result;
+        return $this;
     }
 
     public function parseTOMLStr(string $content) {
