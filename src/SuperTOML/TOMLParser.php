@@ -34,7 +34,7 @@ class TOMLParser
     public function mergeTOMLFiles(array $tomlFiles) {
         $result = [];
         foreach($tomlFiles as $tomlFile) {
-            $result = \array_merge_recursive($result, $this->parseTOMLFile($tomlFile));
+            $result = \array_merge_recursive($result, $this->parseTOMLFile($tomlFile)->toArray());
         }
         return $result;
     }
