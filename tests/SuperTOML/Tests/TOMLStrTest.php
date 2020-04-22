@@ -103,8 +103,8 @@ TOML;
         $toml = <<<TOML
 [area]
 points = [ { x = 1, y = 2, z = 3 },
-           { x = 7, y = 8, z = 9 },
-           { x = 2, y = 4, z = 8 } ]
+{ x = 7, y = 8, z = 9 },
+{ x = 2, y = 4, z = 8 } ]
 TOML;
         $parser = new TOMLParser();
         $data = $parser->parseTOMLStr($toml)->toArray();
@@ -162,5 +162,25 @@ TOML;
         $this->assertSame($data['abc']['links'][2]['name'], 'name3');
         $this->assertSame($data['abc']['links'][0]['owner'], 'abc@xyz.com');
         $this->assertSame($data['abc']['links'][0]['name'], 'a = name1');
+    }
+
+    public function testNestedJSON() {
+        $toml = <<<TOML
+[abc]
+json = {
+    keyset1 = {
+        subkey1 = "subval1",
+        subkey2 = "subval2"
+    },
+    keyset2 = {
+        subkey1 = "subval1",
+        subkey2 = "subval2"
+    }
+}
+TOML;
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml)->toArray();
+        $this->assertSame($data['abc']['json']['keyset1']['subkey2'], 'subval2');
+        $this->assertSame($data['abc']['json']['keyset2']['subkey1'], 'subval1');
     }
 }

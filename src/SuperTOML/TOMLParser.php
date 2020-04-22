@@ -66,6 +66,10 @@ class TOMLParser
                 //try to match a 'key=' pattern and change it to '"key"='
                 $line = \preg_replace_callback($regexTOMLKey, $this->getTOMLKeyMatchHandler(), $line);
                 if (strlen($section) > 0) {
+                    //remove the possible last , in the line
+                    if (substr($line, -1) === ',') {
+                        $line = substr($line, 0, -1);
+                    }
                     $nonSectionDataMap[$section][] = $line;
                 }
             }
@@ -114,6 +118,10 @@ class TOMLParser
                 //try to match a 'key=' pattern and change it to '"key"='
                 $line = \preg_replace_callback($regexTOMLKey, $this->getTOMLKeyMatchHandler(), $line);
                 if (strlen($section) > 0) {
+                    //remove the possible last , in the line
+                    if (substr($line, -1) === ',') {
+                        $line = substr($line, 0, -1);
+                    }
                     $sectionDataMap[$section][] = $line;
                 }
             }
