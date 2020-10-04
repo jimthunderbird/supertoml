@@ -13,6 +13,7 @@ class TOMLParser
     private $rawContent = "";
 
     public function __construct(array $filterNames = [
+        'replace_pound_sign_in_quote',
         'remove_comments',
         'encode_special_signs_in_value',
         'convert_multiline_json_to_singleline_json',
@@ -135,11 +136,13 @@ class TOMLParser
         $this->dataMap = \array_replace_recursive($nonSectionDataMap, $sectionDataMap);
 
         $specialSignsValues = [
+            Symbol::POUND_SIGN['value'],
             Symbol::EQUAL_SIGN['value'],
             Symbol::COLON_SIGN['value'],
         ];
 
         $specialSignsReplacements = [
+            Symbol::POUND_SIGN['replacement'],
             Symbol::EQUAL_SIGN['replacement'],
             Symbol::COLON_SIGN['replacement'],
         ];
