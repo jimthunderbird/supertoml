@@ -4,6 +4,7 @@ namespace SuperTOML;
 class TOMLParser
 {
     private $tomlFile;
+    private $tomlFileDir;
     private $lines = [];
     private $dataMap = [];
     private $filters = [];
@@ -27,16 +28,8 @@ class TOMLParser
     }
 
     public function parseTOMLFile(string $tomlFile) {
+        $this->tomlFileDir = dirname($tomlFile);
         $this->parseTOMLStr(\trim(\file_get_contents($tomlFile)));
-        return $this;
-    }
-
-    public function mergeTOMLFiles(array $tomlFiles) {
-        $result = [];
-        foreach($tomlFiles as $tomlFile) {
-            $result = \array_replace_recursive($result, $this->parseTOMLFile($tomlFile)->toArray());
-        }
-        $this->dataMap = $result;
         return $this;
     }
 
@@ -147,6 +140,29 @@ class TOMLParser
             true
         );
 
+        $tomlsToImport = [];
+
+        //speical treatment for '@import'
+        foreach($this->dataMap as $key => $val) {
+            if ($key === "@imports") {
+                $tomlsToImport = $val;
+                //we only process the first '@import'
+                unset($this->dataMap["@imports"]);
+                break;
+            }
+        }
+
+        $dataMapClone = \json_decode(\json_encode($this->dataMap), true);
+        $dataMap = [];
+        if (count($tomlsToImport) > 0) {
+            foreach($tomlsToImport as $tomlToImport) {
+                $tomlToImport = $this->tomlFileDir . "/" . $tomlToImport;
+                $dataMap = $this->deepMergeArrays($dataMap, $this->parseTOMLFile($tomlToImport)->toArray());
+            }
+            $dataMap = $this->deepMergeArrays($dataMap, $dataMapClone);
+            $this->dataMap = $dataMap;
+        }
+
         return $this;
     }
 
@@ -193,5 +209,23 @@ class TOMLParser
             $content = $filter($content);
         }
         return $content;
+    }
+
+    private function deepMergeArrays(array $array1, array $array2) {
+        $merged = $array1;
+
+        foreach ($array2 as $key => & $value) {
+            if (is_array($value) && isset($merged[$key]) && is_array($merged[$key])) {
+                $merged[$key] = $this->deepMergeArrays($merged[$key], $value);
+            } else if (is_numeric($key)) {
+                if (!in_array($value, $merged)) {
+                    $merged[] = $value;
+                }
+            } else {
+                $merged[$key] = $value;
+            }
+        }
+
+        return $merged;
     }
 }
