@@ -17,8 +17,9 @@ button = {
 ul = {
     class = "simplelist",
     li = {
-       class = "simplelist_item" 
-    }
+       class = "simplelist_item"
+    },
+    items = ["1", "2"]
 }
 style = "width:100px"
 

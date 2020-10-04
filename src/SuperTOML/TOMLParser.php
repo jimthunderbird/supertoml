@@ -15,10 +15,7 @@ class TOMLParser
     public function __construct(array $filterNames = [
         'replace_pound_sign_in_quote',
         'remove_comments',
-        'encode_special_signs_in_value',
-        'convert_multiline_json_to_singleline_json',
-        'convert_multiline_array_to_singleline_array',
-        'remove_trailing_commas',
+        'encode_special_signs_in_value'
     ]) {
         foreach($filterNames as $filterName) {
             if (!isset(static::$requiredFilters[$filterName])) {
@@ -44,10 +41,11 @@ class TOMLParser
 
         $this->lines = \explode("\n", $content);
 
-        //first pass, handle the non-section keys (any keys that does not belong to a specific section)
-        $nonSectionDataMap = [];
+        $sectionDataMap = [];
 
-        $section = "___default_section___"; //we will have a default section first
+        //first pass, handle the non-section keys (any keys that does not belong to a specific section)
+        $defaultSectionName = "___default_section___";
+        $section = $defaultSectionName; //we will have a default section first
         foreach($this->lines as $line) {
             $line = \trim($line);
             $length = \strlen($line);
@@ -56,48 +54,13 @@ class TOMLParser
                 && $line[$length - 1] === ']') { //this is a section
                 break;
             } else if (\strlen($line) > 0 && $line[0] !== "[") { //this is not a section
-                $line = \str_replace("'",'"', $line);
-                //try to match a 'key=' pattern and change it to '"key"='
-                $line = \preg_replace_callback($regexTOMLKey, $this->getTOMLKeyMatchHandler(), $line);
                 if (strlen($section) > 0) {
-                    //remove the possible last , in the line
-                    if (substr($line, -1) === ',') {
-                        $line = substr($line, 0, -1);
-                    }
-                    $nonSectionDataMap[$section][] = $line;
+                    $sectionDataMap[$section][] = $line;
                 }
             }
         }
 
-        foreach($nonSectionDataMap as $section => $lines) {
-            if (\is_array($lines)) {
-                $value = \json_decode('{'. implode(",", $lines). '}', true);
-                $this->assignArrayByPath($nonSectionDataMap, $section, $value, ".");
-            }
-        }
-
-        $numOfNonSectionKeys = 0;
-        if (isset($nonSectionDataMap[$section])) {
-            $numOfNonSectionKeys = \count($nonSectionDataMap[$section]);
-        }
-        if ($numOfNonSectionKeys > 0) {
-            //this means we have default section keys
-            //now assign the default section values back to the data map
-            foreach($nonSectionDataMap[$section] as $key => $value) {
-                $nonSectionDataMap[$key] = $value;
-            }
-
-            //now remove the default section
-            unset($nonSectionDataMap[$section]);
-
-            //also, remove all the processed lines so far
-            for($i = 0; $i < $numOfNonSectionKeys; $i ++) {
-                \array_shift($this->lines);
-            }
-        }
-
         //second pass, handle the section keys
-        $sectionDataMap = [];
         $section = "";
         foreach($this->lines as $line) {
             $line = \trim($line);
@@ -108,14 +71,7 @@ class TOMLParser
                 $section = \trim(substr($line, 1, $length - 2));
                 $sectionDataMap[$section] = [];
             } else if (\strlen($line) > 0 && $line[0] !== "[") { //this is not a section
-                $line = \str_replace("'",'"', $line);
-                //try to match a 'key=' pattern and change it to '"key"='
-                $line = \preg_replace_callback($regexTOMLKey, $this->getTOMLKeyMatchHandler(), $line);
                 if (strlen($section) > 0) {
-                    //remove the possible last , in the line
-                    if (substr($line, -1) === ',') {
-                        $line = substr($line, 0, -1);
-                    }
                     $sectionDataMap[$section][] = $line;
                 }
             }
@@ -123,7 +79,36 @@ class TOMLParser
 
         foreach($sectionDataMap as $section => $lines) {
             if (\is_array($lines)) {
-                $value = \json_decode('{'. implode(",", $lines). '}', true);
+
+                //walk through all the lines
+                $numOfLines = count($lines);
+
+                for ($i = 0; $i < $numOfLines; $i ++) {
+                    $lines[$i] = \str_replace("'",'"', $lines[$i]);
+                    $lines[$i] = \preg_replace_callback(
+                        $regexTOMLKey,
+                        function($matches) {
+                            return '"'.\trim(str_replace('=','',$matches[0])).'":';
+                        },
+                        $lines[$i]
+                    );
+
+                    $lineLength = strlen($lines[$i]);
+                    if (@$lines[$i + 1] !== null
+                        && $lines[$i][$lineLength - 1] != ","
+                        && $lines[$i][$lineLength - 1] != "{"
+                        && $lines[$i][$lineLength - 1] != "["
+                    ) {
+                        //add the comma at the end
+                        $lines[$i] = $lines[$i] . ",";
+                    }
+                    $lines[$i] = trim($lines[$i]);
+                }
+
+                $value = "{" . implode("", $lines). "}";
+                $value = str_replace([",}",",]"], ["}","]"], $value);
+                $value = \json_decode($value, true);
+
                 $this->assignArrayByPath($sectionDataMap, $section, $value, ".");
             }
 
@@ -132,8 +117,18 @@ class TOMLParser
             }
         }
 
+        $defaultSectionDataMap = [];
+
+        if (\array_key_exists($defaultSectionName, $sectionDataMap) === TRUE) {
+            if ( \is_array($sectionDataMap[$defaultSectionName]) ) {
+                $defaultSectionDataMap = \json_decode(\json_encode($sectionDataMap[$defaultSectionName]), true);
+            }
+        }
+
+        unset($sectionDataMap[$defaultSectionName]);
+
         //now we will just merge $nonSectionDataMap and $sectionDataMap
-        $this->dataMap = \array_replace_recursive($nonSectionDataMap, $sectionDataMap);
+        $this->dataMap = \array_replace_recursive($defaultSectionDataMap, $sectionDataMap);
 
         $specialSignsValues = [
             Symbol::POUND_SIGN['value'],
