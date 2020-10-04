@@ -8,3 +8,13 @@ button = {
     id = "randombutton",
     class = "simplebutton"
 }
+ul = {
+    class = "simplelist",
+    li = {
+       class = "simplelist_item" 
+    }
+}
+
+# override ul > li attributes
+[html.body.div.ul.li]
+style = "list-style-type:none"

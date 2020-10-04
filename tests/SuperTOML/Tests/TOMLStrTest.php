@@ -219,5 +219,7 @@ TOML;
         $data = $parser->parseTOMLFile(__DIR__ . "/../../documents/doc1.toml")->toArray();
         $this->assertSame($data['html']['head']['title'], 'title');
         $this->assertSame($data['html']['body']['div']['id'], 'randomid');
+        $this->assertSame($data['html']['body']['div']['ul']['class'], 'simplelist');
+        $this->assertSame($data['html']['body']['div']['ul']['li']['style'], 'list-style-type:none');
     }
 }
