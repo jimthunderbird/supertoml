@@ -1,6 +1,7 @@
 # import external tomls
 @imports = [
-    "./common/template1.toml"
+    "./common/template1.toml",
+    "./common/template2.toml"
 ]
 
 [html.head]

@@ -157,7 +157,8 @@ class TOMLParser
         if (count($tomlsToImport) > 0) {
             foreach($tomlsToImport as $tomlToImport) {
                 $tomlToImport = $this->tomlFileDir . "/" . $tomlToImport;
-                $dataMap = $this->deepMergeArrays($dataMap, $this->parseTOMLFile($tomlToImport)->toArray());
+                $parser = new self();
+                $dataMap = $this->deepMergeArrays($dataMap, $parser->parseTOMLFile($tomlToImport)->toArray());
             }
             $dataMap = $this->deepMergeArrays($dataMap, $dataMapClone);
             $this->dataMap = $dataMap;
