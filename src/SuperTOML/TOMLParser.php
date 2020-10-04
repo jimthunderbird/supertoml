@@ -14,7 +14,7 @@ class TOMLParser
 
     public function __construct(array $filterNames = [
         'remove_comments',
-        'encode_equal_signs_in_value',
+        'encode_special_signs_in_value',
         'convert_multiline_json_to_singleline_json',
         'convert_multiline_array_to_singleline_array',
         'remove_trailing_commas',
@@ -134,9 +134,19 @@ class TOMLParser
         //now we will just merge $nonSectionDataMap and $sectionDataMap
         $this->dataMap = \array_replace_recursive($nonSectionDataMap, $sectionDataMap);
 
+        $specialSignsValues = [
+            Symbol::EQUAL_SIGN['value'],
+            Symbol::COLON_SIGN['value'],
+        ];
+
+        $specialSignsReplacements = [
+            Symbol::EQUAL_SIGN['replacement'],
+            Symbol::COLON_SIGN['replacement'],
+        ];
+
         //we need to decode the special characters like = sign
         $this->dataMap = \json_decode(
-            str_replace(Symbol::EQUAL_SIGN['replacement'],Symbol::EQUAL_SIGN['value'], \json_encode($this->dataMap)),
+            str_replace($specialSignsReplacements, $specialSignsValues, \json_encode($this->dataMap)),
             true
         );
 
