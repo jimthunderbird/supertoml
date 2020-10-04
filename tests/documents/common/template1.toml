@@ -1,3 +1,7 @@
 [html.head.script]
 type = "text/javascript"
 src = "path/to/js"
+
+[html.head]
+title = 'commontitle'
+title2 = 'commontitle2'
