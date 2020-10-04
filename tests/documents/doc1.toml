@@ -1,0 +1,10 @@
+[html.head]
+title = "title"
+
+[html.body.div]
+class ="simplediv"
+id = "randomid"
+button = {
+    id = "randombutton",
+    class = "simplebutton"
+}

@@ -213,4 +213,11 @@ TOML;
         $this->assertSame($data['abc']['efg']['json1']['keyset1']['subkey2'], 'subval2');
         $this->assertSame($data['abc']['efg']['json2']['keyset2']['subkey2'], 'subval22');
     }
+
+    public function testSimpleTOMLDoc() {
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLFile(__DIR__ . "/../../documents/doc1.toml")->toArray();
+        $this->assertSame($data['html']['head']['title'], 'title');
+        $this->assertSame($data['html']['body']['div']['id'], 'randomid');
+    }
 }
