@@ -183,4 +183,34 @@ TOML;
         $this->assertSame($data['abc']['json']['keyset1']['subkey2'], 'subval2');
         $this->assertSame($data['abc']['json']['keyset2']['subkey1'], 'subval1');
     }
+
+    public function testMultiNestedJSON() {
+        $toml = <<<TOML
+[abc]
+json1 = {
+    keyset1 = {
+        subkey1 = "subval1",
+        subkey2 = "subval2"
+    },
+    keyset2 = {
+        subkey1 = "subval1",
+        subkey2 = "subval2"
+    }
+}
+json2 = {
+    keyset1 = {
+        subkey1 = "subval11",
+        subkey2 = "subval22"
+    },
+    keyset2 = {
+        subkey1 = "subval11",
+        subkey2 = "subval22"
+    }
+}
+TOML;
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml)->toArray();
+        $this->assertSame($data['abc']['json1']['keyset1']['subkey2'], 'subval2');
+        $this->assertSame($data['abc']['json2']['keyset2']['subkey2'], 'subval22');
+    }
 }
