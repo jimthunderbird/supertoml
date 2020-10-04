@@ -165,7 +165,7 @@ class TOMLParser
             }
         }
 
-        $dataMapClone = \json_decode(\json_encode($this->dataMap), true);
+        $dataMapClone = $this->dataMap;
         $dataMap = [];
         if (count($tomlsToImport) > 0) {
             foreach($tomlsToImport as $tomlToImport) {
