@@ -42,7 +42,7 @@ class TOMLParser
 
     public function parseTOMLStr(string $content) {
         //TOML key allows this pattern A-Za-z0-9_-
-        $regexTOMLKey = "|[a-zA-Z0-9_-]+[^s]=|";
+        $regexTOMLKey = "|[@a-zA-Z0-9_-]+[^s]=|"; # we also include special sign '@'
 
         $content = $this->applyFiltersToContent($content);
 

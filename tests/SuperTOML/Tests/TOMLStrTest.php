@@ -217,6 +217,7 @@ TOML;
     public function testSimpleTOMLDoc() {
         $parser = new TOMLParser();
         $data = $parser->parseTOMLFile(__DIR__ . "/../../documents/doc1.toml")->toArray();
+        print_r($data);
         $this->assertSame($data['html']['head']['title'], 'title');
         $this->assertSame($data['html']['body']['div']['id'], 'randomid');
         $this->assertSame($data['html']['body']['div']['ul']['class'], 'simplelist');

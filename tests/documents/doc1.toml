@@ -1,3 +1,9 @@
+# import external tomls
+@imports = [
+    "a.toml",
+    "b.toml"
+]
+
 [html.head]
 title = "title"
 
