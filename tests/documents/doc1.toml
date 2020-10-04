@@ -14,6 +14,7 @@ ul = {
        class = "simplelist_item" 
     }
 }
+style = "width:100px"
 
 # override ul > li attributes
 [html.body.div.ul.li]

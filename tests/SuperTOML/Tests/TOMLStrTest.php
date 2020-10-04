@@ -221,5 +221,6 @@ TOML;
         $this->assertSame($data['html']['body']['div']['id'], 'randomid');
         $this->assertSame($data['html']['body']['div']['ul']['class'], 'simplelist');
         $this->assertSame($data['html']['body']['div']['ul']['li']['style'], 'list-style-type:none');
+        $this->assertSame($data['html']['body']['div']['style'], 'width:100px');
     }
 }
