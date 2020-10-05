@@ -3,6 +3,7 @@ namespace SuperTOML;
 
 class TOMLParser
 {
+    private $importFilesKey = "@imports";
     private $tomlFile;
     private $tomlFileDir;
     private $lines = [];
@@ -152,7 +153,7 @@ class TOMLParser
 
         //speical treatment for '@import'
         foreach($this->dataMap as $key => $val) {
-            if ($key === "@imports") {
+            if ($key === $this->importFilesKey) {
                 $tomlsToImport = $val;
                 //we only process the first '@import'
                 unset($this->dataMap["@imports"]);
@@ -183,6 +184,9 @@ class TOMLParser
     public function removeFilter(string $filterName) {
         unset($this->filters[$filterName]);
         return $this;
+    }
+
+    public function setImportFilesKey(string $importFilesKey) {
     }
 
     public function toArray() : array {
