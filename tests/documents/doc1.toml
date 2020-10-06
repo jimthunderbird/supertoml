@@ -22,6 +22,7 @@ ul = {
     items = ["1", "2"]
 }
 style = "width:100px"
+visible = true
 
 # override ul > li attributes
 [html.body.div.ul.li]
