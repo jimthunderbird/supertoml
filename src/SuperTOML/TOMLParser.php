@@ -151,12 +151,20 @@ class TOMLParser
 
         $tomlsToImport = [];
 
-        //speical treatment for '@import'
+        //speical treatment for the imports
+        $importFilesKeyComps = \explode(".", $this->importFilesKey);
         foreach($this->dataMap as $key => $val) {
-            if ($key === $this->importFilesKey) {
+            //import files key is a string like "a.b"
+            if ($key === array_shift($importFilesKeyComps)) {
+                $val = $this->dataMap[$key];
+                foreach($importFilesKeyComps as $importFilesKeyComp) {
+                    if (\array_key_exists($importFilesKeyComp, $val) === TRUE) {
+                        $val = $val[$importFilesKeyComp];
+                    }
+                }
                 $tomlsToImport = $val;
                 //we only process the first '@import'
-                unset($this->dataMap["@imports"]);
+                unset($this->dataMap[$key]);
                 break;
             }
         }
@@ -187,6 +195,7 @@ class TOMLParser
     }
 
     public function setImportFilesKey(string $importFilesKey) {
+        $this->importFilesKey = $importFilesKey;
     }
 
     public function toArray() : array {
