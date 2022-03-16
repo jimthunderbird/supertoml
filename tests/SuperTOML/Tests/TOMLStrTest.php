@@ -227,4 +227,15 @@ TOML;
         $this->assertSame($data['html']['body']['div']['ul']['li']['test'], '#12345');
         $this->assertSame($data['html']['body']['div']['style'], 'width:100px');
     }
+
+    public function testBackSlashes() {
+        $toml = <<<TOML
+[a.b.c]
+key = "\ABC\EFG"
+TOML;
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml)->toArray();
+
+        $this->assertSame($data['a']['b']['c']['key'], "\ABC\EFG");
+    }
 }

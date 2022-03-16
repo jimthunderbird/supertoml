@@ -108,6 +108,8 @@ class TOMLParser
 
                 $value = "{" . implode("", $lines). "}";
                 $value = str_replace([",}",",]"], ["}","]"], $value);
+                //replace backslashes
+                $value = str_replace('\\','\\\\', $value);
                 $value = \json_decode($value, true);
 
                 $this->assignArrayByPath($sectionDataMap, $section, $value, ".");
