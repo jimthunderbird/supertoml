@@ -17,17 +17,12 @@ return function($content) {
         Symbol::COLON_SIGN['replacement'],
     ];
 
-    \preg_match_all("/\"[\=:\/\?\s0-9a-zA-Z_-]+\"/", $content, $matches);
+    # we need to consider there will be backslash in the value as well!
+    \preg_match_all("/\"[\=:\\\\\/\?\s0-9a-zA-Z_-]+\"/", $content, $matches);
 
     foreach($matches[0] as $match) {
         $content = \str_replace($match, \str_replace($specialSignsValues,$specialSignsReplacements, $match), $content);
     }
-
-    //\preg_match_all("/\'[\=:\/\?\s0-9a-zA-Z_-]+\'/", $content, $matches);
-
-    //foreach($matches[0] as $match) {
-        //$content = \str_replace($match, \str_replace($specialSignsValues,$specialSignsReplacements, $match), $content);
-    //}
 
     return $content;
 };

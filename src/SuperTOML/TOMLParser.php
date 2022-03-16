@@ -14,6 +14,7 @@ class TOMLParser
     private $rawContent = "";
 
     public function __construct(array $filterNames = [
+        //'replace_backslash_in_quote',
         'replace_pound_sign_in_quote',
         'remove_comments',
         'encode_special_signs_in_value'
@@ -145,9 +146,10 @@ class TOMLParser
             Symbol::COLON_SIGN['replacement'],
         ];
 
+        $possibleJSON = str_replace($specialSignsReplacements, $specialSignsValues, \json_encode($this->dataMap));
         //we need to decode the special characters like = sign
         $this->dataMap = \json_decode(
-            str_replace($specialSignsReplacements, $specialSignsValues, \json_encode($this->dataMap)),
+            $possibleJSON,
             true
         );
 
