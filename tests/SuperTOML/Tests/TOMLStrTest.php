@@ -241,12 +241,28 @@ key2 = "abc"
 key = "\ABC\EFG"
 TOML;
 
+        $toml3 = <<<TOML
+[a.b.c]
+key2 = "abc"
+url = "http://www.google.com"
+name = "google"
+key = "\ABC\EFG"
+TOML;
+
+
         $parser = new TOMLParser();
         $data = $parser->parseTOMLStr($toml1)->toArray();
         $this->assertSame($data['a']['b']['c']['key'], "\ABC\EFG");
 
         $parser = new TOMLParser();
         $data = $parser->parseTOMLStr($toml2)->toArray();
+        $this->assertSame($data['a']['b']['c']['key'], "\ABC\EFG");
+
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml3)->toArray();
+        $this->assertSame($data['a']['b']['c']['key2'], "abc");
+        $this->assertSame($data['a']['b']['c']['url'], "http://www.google.com");
+        $this->assertSame($data['a']['b']['c']['name'], "google");
         $this->assertSame($data['a']['b']['c']['key'], "\ABC\EFG");
 
     }

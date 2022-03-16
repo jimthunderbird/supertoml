@@ -17,7 +17,7 @@ class TOMLParser
         //'replace_backslash_in_quote',
         'replace_pound_sign_in_quote',
         'remove_comments',
-        'encode_special_signs_in_value'
+        //'encode_special_signs_in_value'
     ]) {
         foreach($filterNames as $filterName) {
             if (!isset(static::$requiredFilters[$filterName])) {
@@ -38,11 +38,9 @@ class TOMLParser
         $regexTOMLKey = "|[@a-zA-Z0-9_-]+[^s]=|"; # we also include special sign '@'
 
         $content = $this->applyFiltersToContent($content);
-
         $this->rawContent = $content;
 
         $this->lines = \explode("\n", $content);
-
         $sectionDataMap = [];
 
         //first pass, handle the non-section keys (any keys that does not belong to a specific section)
@@ -112,7 +110,6 @@ class TOMLParser
                 //replace backslashes
                 $value = str_replace('\\','\\\\', $value);
                 $value = \json_decode($value, true);
-
                 $this->assignArrayByPath($sectionDataMap, $section, $value, ".");
             }
 
@@ -133,7 +130,6 @@ class TOMLParser
 
         //now we will just merge $nonSectionDataMap and $sectionDataMap
         $this->dataMap = \array_replace_recursive($defaultSectionDataMap, $sectionDataMap);
-
         $specialSignsValues = [
             Symbol::POUND_SIGN['value'],
             Symbol::EQUAL_SIGN['value'],
