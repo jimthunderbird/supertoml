@@ -6,7 +6,7 @@ use SuperTOML\TOMLParser;
 
 class TOMLStrTest extends TestCase
 {
-    //////////////////////public function testSimpleTOML() {
+    //public function testSimpleTOML() {
         //////////////////////$toml = <<<TOML
 //////////////////////[a.b.c]
 //////////////////////key = 1
@@ -249,6 +249,15 @@ name = "google"
 key = "\ABC\EFG"
 TOML;
 
+        $toml4 = <<<TOML
+[a.b.c]
+# we can now define the actual class that is handling the acl-manager logic
+key1 = "\ABCD\EFG"
+key2 = "ok" # point acl manager to default datastore
+key3 = "http://dummy.io"
+key4 = "dummy@dummy.com"
+password = "111111"
+TOML;
 
         $parser = new TOMLParser();
         $data = $parser->parseTOMLStr($toml1)->toArray();
@@ -265,5 +274,10 @@ TOML;
         $this->assertSame($data['a']['b']['c']['name'], "google");
         $this->assertSame($data['a']['b']['c']['key'], "\ABC\EFG");
 
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml4)->toArray();
+
+        $this->assertSame($data['a']['b']['c']['key2'], "ok");
+        $this->assertSame($data['a']['b']['c']['key3'], "http://dummy.io");
     }
 }

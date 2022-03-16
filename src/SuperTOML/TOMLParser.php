@@ -15,7 +15,7 @@ class TOMLParser
 
     public function __construct(array $filterNames = [
         //'replace_backslash_in_quote',
-        'replace_pound_sign_in_quote',
+        //'replace_pound_sign_in_quote',
         'remove_comments',
         //'encode_special_signs_in_value'
     ]) {
