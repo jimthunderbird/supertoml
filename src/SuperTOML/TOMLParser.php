@@ -90,7 +90,8 @@ class TOMLParser
                         function($matches) {
                             return '"'.\trim(str_replace('=','',$matches[0])).'":';
                         },
-                        $lines[$i]
+                        $lines[$i],
+                        1 //only replace once!!!
                     );
 
                     $lineLength = strlen($lines[$i]);

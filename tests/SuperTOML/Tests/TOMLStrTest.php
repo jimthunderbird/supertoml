@@ -280,4 +280,17 @@ TOML;
         $this->assertSame($data['a']['b']['c']['key2'], "ok");
         $this->assertSame($data['a']['b']['c']['key3'], "http://dummy.io");
     }
+
+    public function testQuestionMark() {
+        $toml1 = <<<TOML
+[a.b.c]
+key = "\ABC\EFG"
+key2 = "abc"
+url = "http://localhost?q=1"
+TOML;
+
+        $parser = new TOMLParser();
+        $data = $parser->parseTOMLStr($toml1)->toArray();
+        $this->assertSame($data['a']['b']['c']['url'], "http://localhost?q=1");
+    }
 }
