@@ -286,11 +286,11 @@ TOML;
 [a.b.c]
 key = "\ABC\EFG"
 key2 = "abc"
-url = "http://localhost?q=1"
+url = "http://localhost?item_id<eq>1"
 TOML;
 
         $parser = new TOMLParser();
         $data = $parser->parseTOMLStr($toml1)->toArray();
-        $this->assertSame($data['a']['b']['c']['url'], "http://localhost?q=1");
+        $this->assertSame($data['a']['b']['c']['url'], "http://localhost?item_id<eq>1");
     }
 }
